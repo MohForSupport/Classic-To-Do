@@ -150,14 +150,18 @@ function SemesterSelector({ semesters, selectedSemesterCode, onChange }) {
   );
 }
 
-function WeekAccordion({ weeks, selectedWeekNumber, onSelectWeek, children }) {
+function WeekAccordion({ weeks, selectedWeekNumber, examWeekNumbers, onSelectWeek, children }) {
   return (
     <section className="weeks" aria-label="Semester weeks">
       {weeks.map((week) => {
         const isOpen = week.number === selectedWeekNumber;
+        const hasExam = examWeekNumbers.has(week.number);
 
         return (
-          <article className={`week-card ${isOpen ? "is-open" : ""}`} key={week.number}>
+          <article
+            className={`week-card ${isOpen ? "is-open" : ""} ${hasExam ? "has-exam" : ""}`}
+            key={week.number}
+          >
             <button
               className="week-header"
               type="button"
@@ -178,23 +182,29 @@ function WeekAccordion({ weeks, selectedWeekNumber, onSelectWeek, children }) {
   );
 }
 
-function DayTabs({ days, selectedDate, onSelectDate }) {
+function DayTabs({ days, selectedDate, examDates, onSelectDate }) {
   return (
     <div className="day-tabs" role="tablist" aria-label="Days">
-      {days.map((day) => (
-        <button
-          key={day.name}
-          className={`day-tab ${day.iso === selectedDate ? "is-active" : ""}`}
-          type="button"
-          role="tab"
-          aria-selected={day.iso === selectedDate}
-          disabled={!day.enabled}
-          onClick={() => day.enabled && onSelectDate(day.iso)}
-        >
-          <span>{day.name}</span>
-          <small>{day.date ? formatShortDate(day.date) : "Outside"}</small>
-        </button>
-      ))}
+      {days.map((day) => {
+        const hasExam = Boolean(day.iso && examDates.has(day.iso));
+
+        return (
+          <button
+            key={day.name}
+            className={`day-tab ${day.iso === selectedDate ? "is-active" : ""} ${
+              hasExam ? "has-exam" : ""
+            }`}
+            type="button"
+            role="tab"
+            aria-selected={day.iso === selectedDate}
+            disabled={!day.enabled}
+            onClick={() => day.enabled && onSelectDate(day.iso)}
+          >
+            <span>{day.name}</span>
+            <small>{day.date ? formatShortDate(day.date) : "Outside"}</small>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -566,11 +576,30 @@ function App() {
     setModalState({ type: null, task: null });
   }
 
-  const visibleTasks = tasks.filter(
-    (task) =>
-      task.semester === selectedSemester.code &&
-      task.weekNumber === selectedWeek.number &&
-      task.date === selectedDate,
+  const semesterExamTasks = useMemo(
+    () => tasks.filter((task) => task.semester === selectedSemester.code && task.isExam),
+    [tasks, selectedSemester.code],
+  );
+
+  const examDates = useMemo(
+    () => new Set(semesterExamTasks.map((task) => task.date)),
+    [semesterExamTasks],
+  );
+
+  const examWeekNumbers = useMemo(
+    () => new Set(semesterExamTasks.map((task) => task.weekNumber)),
+    [semesterExamTasks],
+  );
+
+  const visibleTasks = tasks
+    .filter(
+      (task) =>
+        task.semester === selectedSemester.code &&
+        task.weekNumber === selectedWeek.number &&
+        task.date === selectedDate,
+    )
+    .sort((firstTask, secondTask) =>
+      Number(Boolean(secondTask.isExam)) - Number(Boolean(firstTask.isExam)),
   );
 
   const selectedDay = weekDays.find((day) => day.iso === selectedDate);
@@ -599,11 +628,13 @@ function App() {
           <WeekAccordion
             weeks={weeks}
             selectedWeekNumber={selectedWeek.number}
+            examWeekNumbers={examWeekNumbers}
             onSelectWeek={handleSelectWeek}
           >
             <DayTabs
               days={weekDays}
               selectedDate={selectedDate}
+              examDates={examDates}
               onSelectDate={(date) => {
                 setSelectedDate(date);
                 setDeleteMode(false);

@@ -252,6 +252,15 @@ h2 {
   background: rgba(255, 255, 255, 0.62);
 }
 
+.week-card.has-exam .week-header {
+  color: var(--exam-red);
+}
+
+.week-card.has-exam .week-chevron {
+  border-color: rgba(196, 49, 49, 0.34);
+  color: var(--exam-red);
+}
+
 .week-card:hover {
   transform: translateY(-1px);
 }
@@ -349,6 +358,15 @@ h2 {
 
 .day-tab.is-active {
   box-shadow: var(--ring);
+}
+
+.day-tab.has-exam,
+.day-tab.has-exam small {
+  color: var(--exam-red);
+}
+
+.day-tab.has-exam {
+  border-color: rgba(196, 49, 49, 0.34);
 }
 
 .day-tab:disabled {
