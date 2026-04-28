@@ -12,6 +12,7 @@ after refreshing the page.
 - Accordion layout for weekly planning.
 - Sunday-to-Saturday day tabs with real dates for each week.
 - Add, remove, edit, and complete tasks.
+- Mark a task as an exam so it appears in red.
 - Notebook-style checkboxes with a hand-drawn strike-through effect.
 - Light notebook/glassmorphism UI with a ShaderGradient background.
 - Persistent localStorage task data.
@@ -67,6 +68,7 @@ Tasks are saved in `localStorage` and include:
 
 - `id`
 - `text`
+- `isExam`
 - `completed`
 - `semester`
 - `weekNumber`

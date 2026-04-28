@@ -20,6 +20,7 @@
   --kfupm-gold: #b69b52;
   --red-soft: #f4dddd;
   --red-ink: #b84747;
+  --exam-red: #c43131;
   --shadow: 0 24px 70px rgba(52, 58, 59, 0.16);
   --ring: 0 0 0 4px rgba(0, 108, 76, 0.14);
 }
@@ -583,12 +584,24 @@ h2 {
   transition: transform 0.3s ease;
 }
 
+.notebook-checkbox.is-exam .text {
+  color: var(--exam-red);
+}
+
+.notebook-checkbox.is-exam .text .cut-line {
+  stroke: var(--exam-red);
+}
+
 .notebook-checkbox input:checked ~ .text .cut-line {
   transform: scaleX(1);
 }
 
 .notebook-checkbox input:checked ~ .text {
   color: rgba(34, 34, 34, 0.66);
+}
+
+.notebook-checkbox.is-exam input:checked ~ .text {
+  color: rgba(196, 49, 49, 0.72);
 }
 
 .delete-button {
@@ -757,6 +770,21 @@ h2 {
 .task-modal textarea:focus {
   border-color: var(--kfupm-green);
   box-shadow: var(--ring);
+}
+
+.exam-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--graphite);
+  font-weight: 800;
+}
+
+.exam-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--exam-red);
 }
 
 .modal-actions {

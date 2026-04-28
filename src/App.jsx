@@ -268,7 +268,7 @@ function TaskActions({ deleteMode, editMode, onAdd, onToggleDeleteMode, onToggle
 
 function NotebookCheckbox({ task, onToggle }) {
   return (
-    <label className="notebook-checkbox">
+    <label className={`notebook-checkbox ${task.isExam ? "is-exam" : ""}`}>
       <input
         type="checkbox"
         checked={task.completed}
@@ -330,13 +330,15 @@ function TaskList({
   );
 }
 
-function TaskModal({ mode, initialText = "", onCancel, onSubmit }) {
+function TaskModal({ mode, initialText = "", initialIsExam = false, onCancel, onSubmit }) {
   const [text, setText] = useState(initialText);
+  const [isExam, setIsExam] = useState(initialIsExam);
   const isEditing = mode === "edit";
 
   useEffect(() => {
     setText(initialText);
-  }, [initialText]);
+    setIsExam(initialIsExam);
+  }, [initialText, initialIsExam]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -345,7 +347,7 @@ function TaskModal({ mode, initialText = "", onCancel, onSubmit }) {
       return;
     }
 
-    onSubmit(cleanedText);
+    onSubmit({ text: cleanedText, isExam });
   }
 
   return (
@@ -364,6 +366,15 @@ function TaskModal({ mode, initialText = "", onCancel, onSubmit }) {
           placeholder="Write the task..."
           onChange={(event) => setText(event.target.value)}
         />
+
+        <label className="exam-toggle">
+          <input
+            type="checkbox"
+            checked={isExam}
+            onChange={(event) => setIsExam(event.target.checked)}
+          />
+          <span>Is this activity an exam?</span>
+        </label>
 
         <div className="modal-actions">
           <button className="cancel-button" type="button" onClick={onCancel}>
@@ -514,11 +525,12 @@ function App() {
     setEditMode(false);
   }
 
-  function handleAddTask(text) {
+  function handleAddTask({ text, isExam }) {
     const selectedDay = weekDays.find((day) => day.iso === selectedDate);
     const newTask = {
       id: createTaskId(),
       text,
+      isExam,
       completed: false,
       semester: selectedSemester.code,
       weekNumber: selectedWeek.number,
@@ -540,14 +552,16 @@ function App() {
     setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
   }
 
-  function handleEditTask(text) {
+  function handleEditTask({ text, isExam }) {
     const editingTask = modalState.task;
     if (!editingTask) {
       return;
     }
 
     setTasks((currentTasks) =>
-      currentTasks.map((task) => (task.id === editingTask.id ? { ...task, text } : task)),
+      currentTasks.map((task) =>
+        task.id === editingTask.id ? { ...task, text, isExam } : task,
+      ),
     );
     setModalState({ type: null, task: null });
   }
@@ -635,6 +649,7 @@ function App() {
         <TaskModal
           mode={modalState.type}
           initialText={modalState.task?.text ?? ""}
+          initialIsExam={modalState.task?.isExam ?? false}
           onCancel={() => setModalState({ type: null, task: null })}
           onSubmit={modalState.type === "edit" ? handleEditTask : handleAddTask}
         />
