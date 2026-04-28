@@ -5,6 +5,7 @@ const STORAGE_KEY = "kfupm-to-do-tasks-v1";
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 const SEMESTERS = [
+  { code: "252", start: "2026-01-11", end: "2026-05-20" },
   { code: "261", start: "2026-08-19", end: "2026-12-24" },
   { code: "262", start: "2027-01-10", end: "2027-06-06" },
   { code: "263", start: "2027-01-30", end: "2027-08-15" },
